@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.index') }}" class="nav-btn nav-btn-ghost">← Browse</a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-btn nav-btn-ghost">Logout</a>
+  </div>
+</nav>
+
+<main class="main-narrow">
+
+  <div class="page-header">
+    <div class="eyebrow">Account</div>
+    <h1 class="page-title">Edit Profile</h1>
+  </div>
+
+  <div class="report-right">
+    <form method="POST" action="{{ url_for('items.profile') }}">
+      <div class="row-2">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" name="first_name" value="{{ user.first_name }}" required />
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" name="last_name" value="{{ user.last_name }}" required />
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" value="{{ user.email }}" disabled class="input-disabled" />
+        <div class="field-note">Email cannot be changed.</div>
+      </div>
+      <div class="field">
+        <label>Student / Staff ID</label>
+        <input type="text" value="{{ user.student_id or '' }}" disabled class="input-disabled" />
+      </div>
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" value="{{ user.phone or '' }}" placeholder="+254 712 345 678" />
+      </div>
+      <button type="submit" class="btn-primary">Save Changes</button>
+    </form>
+  </div>
+
+</main>
+
+{% endblock %}

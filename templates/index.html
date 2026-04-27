@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Browse{% endblock %}
+
+{% block content %}
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.my_items') }}"  class="nav-btn nav-btn-ghost">My Items</a>
+    <a href="{{ url_for('items.report_lost') }}" class="nav-btn nav-btn-primary">+ Lost Item</a>
+    <a href="{{ url_for('items.report_found') }}" class="nav-btn nav-btn-success">+ Found Item</a>
+    <a href="{{ url_for('items.matches') }}"  class="nav-btn nav-btn-ghost">Matches</a>
+    {% if session.get('is_admin') %}
+    <a href="{{ url_for('admin.dashboard') }}" class="nav-btn nav-btn-ghost">Admin</a>
+    {% endif %}
+
+    <div class="profile-wrap">
+      <button class="avatar" onclick="toggleDropdown()">{{ session['name'][0] }}</button>
+      <div class="profile-dropdown" id="profile-dropdown">
+        <div class="profile-info">
+          <div class="profile-avatar-lg">{{ session['name'][0] }}</div>
+          <div>
+            <div class="profile-name">{{ session['name'] }}</div>
+            <div class="profile-email">{{ session['email'] }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('items.profile') }}" class="dropdown-item">✏️ Edit Profile</a>
+        <div class="dropdown-item" onclick="toggleTheme()">
+          🌙 <span id="theme-label">Dark Mode</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="hero-strip">
+  <div class="hero-left">
+    <h1>Browse <span>Listings</span></h1>
+    <p>Search through reported lost &amp; found items on campus.</p>
+  </div>
+  <form method="GET" action="{{ url_for('items.index') }}" class="search-bar">
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Search by item, location, description…" />
+    <button type="submit">🔍</button>
+  </form>
+</div>
+
+<main>
+  <div class="filters">
+    <span class="filter-label">Filter:</span>
+    <a href="{{ url_for('items.index') }}"                           class="chip {% if not status and not category %}active{% endif %}">All</a>
+    <a href="{{ url_for('items.index', status='lost') }}"            class="chip chip-lost  {% if status == 'lost'  %}active{% endif %}">Lost</a>
+    <a href="{{ url_for('items.index', status='found') }}"           class="chip chip-found {% if status == 'found' %}active{% endif %}">Found</a>
+    <a href="{{ url_for('items.index', category='Electronics') }}"   class="chip {% if category == 'Electronics' %}active{% endif %}">Electronics</a>
+    <a href="{{ url_for('items.index', category='Clothing') }}"      class="chip {% if category == 'Clothing'    %}active{% endif %}">Clothing</a>
+    <a href="{{ url_for('items.index', category='ID & Cards') }}"    class="chip {% if category == 'ID & Cards'  %}active{% endif %}">ID &amp; Cards</a>
+    <a href="{{ url_for('items.index', category='Books') }}"         class="chip {% if category == 'Books'       %}active{% endif %}">Books</a>
+    <a href="{{ url_for('items.index', category='Bags') }}"          class="chip {% if category == 'Bags'        %}active{% endif %}">Bags</a>
+    <a href="{{ url_for('items.index', category='Keys') }}"          class="chip {% if category == 'Keys'        %}active{% endif %}">Keys</a>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Recent Reports</div>
+    <div class="result-count">{{ items|length }} item(s) shown</div>
+  </div>
+
+  <div class="grid">
+    {% if items %}
+      {% for item in items %}
+      <a href="{{ url_for('items.item_detail', item_id=item.id) }}" class="card" style="text-decoration:none; color:inherit;">
+        <div class="card-img" style="background: linear-gradient(135deg,#1a1a2e,#16213e);">
+          {% if item.image %}
+            <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.title }}" style="width:100%; height:100%; object-fit:cover;" />
+          {% else %}
+            {% if item.category == 'Electronics' %}💻
+            {% elif item.category == 'Bags' %}🎒
+            {% elif item.category == 'ID & Cards' %}🪪
+            {% elif item.category == 'Keys' %}🔑
+            {% elif item.category == 'Clothing' %}🧥
+            {% elif item.category == 'Books' %}📒
+            {% else %}📦
+            {% endif %}
+          {% endif %}
+          <div class="card-badge badge-{{ item.status }}">{{ item.status|capitalize }}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">{{ item.title }}</div>
+          <div class="card-desc">{{ item.description or 'No description provided.' }}</div>
+          <div class="card-meta">
+            <span class="card-location">📍 {{ item.location or 'Unknown' }}</span>
+            <span class="card-date">{{ item.date_lost or '' }}</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div style="grid-column: 1/-1; text-align:center; padding: 60px 0; color: var(--muted);">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No items found</div>
+        <div style="font-size:14px;">Try a different search or filter.</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="pagination">
+    {% if page > 1 %}
+      <a href="{{ url_for('items.index', page=page-1, status=status, category=category, q=q) }}" class="page-btn">‹</a>
+    {% endif %}
+    <span class="page-btn active">{{ page }}</span>
+    {% if items|length == 12 %}
+      <a href="{{ url_for('items.index', page=page+1, status=status, category=category, q=q) }}" class="page-btn">›</a>
+    {% endif %}
+  </div>
+</main>
+
+<a href="{{ url_for('items.report_lost') }}" class="fab">
+  <span>＋</span> Report Item
+</a>
+
+{% endblock %}

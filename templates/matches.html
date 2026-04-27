@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Matches{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.index') }}" class="nav-btn nav-btn-ghost">← Browse</a>
+    <div class="profile-wrap">
+      <button class="avatar" onclick="toggleDropdown()">{{ session['name'][0] }}</button>
+      <div class="profile-dropdown" id="profile-dropdown">
+        <div class="profile-info">
+          <div class="profile-avatar-lg">{{ session['name'][0] }}</div>
+          <div>
+            <div class="profile-name">{{ session['name'] }}</div>
+            <div class="profile-email">{{ session['email'] }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('items.profile') }}" class="dropdown-item">✏️ Edit Profile</a>
+        <div class="dropdown-item" onclick="toggleTheme()">
+          🌙 <span id="theme-label">Dark Mode</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-medium">
+
+  <div class="page-header-lg">
+    <div class="eyebrow">Auto Detected</div>
+    <h1 class="page-title-lg">Potential Matches</h1>
+    <p style="font-size:14px; color:var(--muted); margin-top:8px;">Items that may belong together based on category.</p>
+  </div>
+
+  {% if matches %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Lost Item</th>
+            <th>Found Item</th>
+            <th>Category</th>
+            <th>Status</th>
+            {% if session.get('is_admin') %}<th>Actions</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for match in matches %}
+          <tr>
+            <td>#{{ match.id }}</td>
+            <td>
+              <a href="{{ url_for('items.item_detail', item_id=match.lost_item.id) }}" style="color:var(--danger); text-decoration:none;">
+                {{ match.lost_item.title }}
+              </a>
+              <div style="font-size:11px; color:var(--muted);">📍 {{ match.lost_item.location or '—' }}</div>
+            </td>
+            <td>
+              <a href="{{ url_for('items.item_detail', item_id=match.found_item.id) }}" style="color:var(--success); text-decoration:none;">
+                {{ match.found_item.title }}
+              </a>
+              <div style="font-size:11px; color:var(--muted);">📍 {{ match.found_item.location or '—' }}</div>
+            </td>
+            <td>{{ match.lost_item.category }}</td>
+            <td>
+              {% if match.status == 'pending' %}
+                <span class="card-badge badge-lost pos-relative top-auto left-auto">Pending</span>
+              {% elif match.status == 'approved' %}
+                <span class="card-badge badge-found pos-relative top-auto left-auto">Approved</span>
+              {% else %}
+                <span class="card-badge badge-claimed pos-relative top-auto left-auto">Rejected</span>
+              {% endif %}
+            </td>
+            {% if session.get('is_admin') %}
+            <td>
+              <div style="display:flex; gap:8px;">
+                <form method="POST" action="{{ url_for('items.update_match_status', match_id=match.id) }}">
+                  <input type="hidden" name="status" value="approved" />
+                  <button type="submit" class="btn-approve">✓ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('items.update_match_status', match_id=match.id) }}">
+                  <input type="hidden" name="status" value="rejected" />
+                  <button type="submit" class="btn-reject">✗ Reject</button>
+                </form>
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔄</div>
+      <div class="empty-title">No matches yet</div>
+      <div style="font-size:14px;">Matches appear automatically when lost and found items share the same category.</div>
+    </div>
+  {% endif %}
+
+</main>
+
+{% endblock %}

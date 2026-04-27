@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CampusFind — the smarter lost & found platform for Kenyatta University students and staff."/>
+  <title>{% block title %}CampusFind{% endblock %} · CampusFind</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  {# ── Global flash messages (shown on every page) ── #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-stack">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+  {# ── Shared JS (theme persistence) ── #}
+  <script>
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+    }
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      const label = document.getElementById('theme-label');
+      if (document.body.classList.contains('light')) {
+        if (label) label.textContent = 'Light Mode';
+        localStorage.setItem('theme', 'light');
+      } else {
+        if (label) label.textContent = 'Dark Mode';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+    function toggleDropdown() {
+      const dropdown = document.getElementById('profile-dropdown');
+      if (dropdown) dropdown.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      const wrap = document.querySelector('.profile-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>

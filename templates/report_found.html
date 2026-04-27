@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Report Found Item{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.index') }}" class="nav-btn nav-btn-ghost">← Back to Browse</a>
+   <div class="profile-wrap">
+  <button class="avatar" onclick="toggleDropdown()">{{ session['name'][0] }}</button>
+  <div class="profile-dropdown" id="profile-dropdown">
+    <div class="profile-info">
+      <div class="profile-avatar-lg">{{ session['name'][0] }}</div>
+      <div>
+        <div class="profile-name">{{ session['name'] }}</div>
+        <div class="profile-email">{{ session['email'] }}</div>
+      </div>
+    </div>
+    <div class="dropdown-divider"></div>
+    <a href="{{ url_for('items.profile') }}" class="dropdown-item">✏️ Edit Profile</a>
+    <div class="dropdown-item" onclick="toggleTheme()">
+      🌙 <span id="theme-label">Dark Mode</span>
+    </div>
+    <div class="dropdown-divider"></div>
+    <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">🚪 Logout</a>
+  </div>
+</div>
+  </div>
+</nav>
+
+<main>
+  <div class="report-layout">
+
+    <!-- Left -->
+    <div class="report-left">
+      <div class="report-tag" class="text-success">Found Item</div>
+      <h1 class="report-title">Report a<br><span class="text-success">Found Item</span></h1>
+      <p class="report-desc">
+        Found something on campus? Report it here so the owner can claim it quickly.
+      </p>
+      <div class="tips">
+        <div class="tip">
+          <div class="tip-icon">📸</div>
+          <div class="tip-text">
+            <strong>Add a photo</strong>
+            <span>Helps the owner identify their item faster.</span>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">📍</div>
+          <div class="tip-text">
+            <strong>Where did you find it?</strong>
+            <span>Be specific — building, floor, room number.</span>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">🔒</div>
+          <div class="tip-text">
+            <strong>Keep it safe</strong>
+            <span>Hand it in to security or keep it safe until the owner contacts you.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="report-right">
+      <form method="POST" action="{{ url_for('items.report_found') }}" enctype="multipart/form-data">
+        <input type="hidden" name="status" value="found" />
+
+        <div class="field">
+          <label>Item Title</label>
+          <input type="text" name="title" placeholder="e.g. Black HP Laptop" required />
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Category</label>
+            <select name="category" required>
+              <option value="" disabled selected>Select category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="ID & Cards">ID & Cards</option>
+              <option value="Books">Books</option>
+              <option value="Bags">Bags</option>
+              <option value="Keys">Keys</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Date Found</label>
+            <input type="date" name="date_lost" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Where did you find it?</label>
+          <input type="text" name="location" placeholder="e.g. Main Library, Ground Floor" required />
+        </div>
+
+        <div class="field">
+          <label>Description</label>
+          <textarea name="description" rows="4" placeholder="Describe the item — color, size, brand, any unique marks..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Photo <span class="hint">(optional but recommended)</span></label>
+          <div class="upload-box" id="upload-box" onclick="document.getElementById('image-input').click()">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Click to upload image</div>
+            <div class="upload-sub">JPG, PNG or WEBP — max 5MB</div>
+            <input type="file" id="image-input" name="image" accept=".jpg,.jpeg,.png,.webp" class="d-none" onchange="previewImage(this)" />
+          </div>
+          <img id="image-preview" src="" alt="" class="img-preview" />
+        </div>
+
+        <button type="submit" class="btn-primary" class="nav-btn-success">Submit Report</button>
+      </form>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function previewImage(input) {
+    const preview = document.getElementById('image-preview');
+    const box = document.getElementById('upload-box');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        box.style.borderColor = 'var(--success)';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

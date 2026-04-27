@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}My Items{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.index') }}"       class="nav-btn nav-btn-ghost">← Browse</a>
+    <a href="{{ url_for('items.report_lost') }}" class="nav-btn nav-btn-primary">+ Report Item</a>
+    <div class="profile-wrap">
+      <button class="avatar" onclick="toggleDropdown()">{{ session['name'][0] }}</button>
+      <div class="profile-dropdown" id="profile-dropdown">
+        <div class="profile-info">
+          <div class="profile-avatar-lg">{{ session['name'][0] }}</div>
+          <div>
+            <div class="profile-name">{{ session['name'] }}</div>
+            <div class="profile-email">{{ session['email'] }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('items.profile') }}" class="dropdown-item">✏️ Edit Profile</a>
+        <div class="dropdown-item" onclick="toggleTheme()">
+          🌙 <span id="theme-label">Dark Mode</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-wide">
+
+  <div class="section-header page-header">
+    <div>
+      <div class="eyebrow">Your Reports</div>
+      <div class="page-title">My Items</div>
+    </div>
+    <a href="{{ url_for('items.report_lost') }}" class="nav-btn nav-btn-primary">+ Report New Item</a>
+  </div>
+
+  {% if items %}
+    <div class="grid">
+      {% for item in items %}
+      <div class="card">
+        <a href="{{ url_for('items.item_detail', item_id=item.id) }}" style="text-decoration:none; color:inherit;">
+          <div class="card-img" style="background: linear-gradient(135deg,#1a1a2e,#16213e);">
+            {% if item.image %}
+              <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.title }}" style="width:100%; height:100%; object-fit:cover;" />
+            {% else %}
+              {% if item.category == 'Electronics' %}💻
+              {% elif item.category == 'Bags' %}🎒
+              {% elif item.category == 'ID & Cards' %}🪪
+              {% elif item.category == 'Keys' %}🔑
+              {% elif item.category == 'Clothing' %}🧥
+              {% elif item.category == 'Books' %}📒
+              {% else %}📦
+              {% endif %}
+            {% endif %}
+            <div class="card-badge badge-{{ item.status }}">{{ item.status|capitalize }}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-title">{{ item.title }}</div>
+            <div class="card-desc">{{ item.description or 'No description provided.' }}</div>
+            <div class="card-meta">
+              <span class="card-location">📍 {{ item.location or 'Unknown' }}</span>
+              <span class="card-date">{{ item.date_lost or '' }}</span>
+            </div>
+          </div>
+        </a>
+        <!-- Delete button -->
+        <div style="padding: 0 16px 16px;">
+          <form method="POST" action="{{ url_for('items.delete_item', item_id=item.id) }}" onsubmit="return confirm('Delete this item?')">
+            <button type="submit" class="btn-danger-outline">
+              🗑 Delete
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No items yet</div>
+      <div class="empty-desc">You haven't reported any lost or found items.</div>
+      <a href="{{ url_for('items.report_lost') }}" class="nav-btn nav-btn-primary">+ Report an Item</a>
+    </div>
+  {% endif %}
+
+</main>
+
+{% endblock %}

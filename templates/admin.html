@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.matches') }}"  class="nav-btn nav-btn-primary">View Matches</a>
+    <a href="{{ url_for('items.index') }}"    class="nav-btn nav-btn-ghost">← Browse</a>
+    <div class="profile-wrap">
+      <button class="avatar" onclick="toggleDropdown()">{{ session['name'][0] }}</button>
+      <div class="profile-dropdown" id="profile-dropdown">
+        <div class="profile-info">
+          <div class="profile-avatar-lg">{{ session['name'][0] }}</div>
+          <div>
+            <div class="profile-name">{{ session['name'] }}</div>
+            <div class="profile-email">{{ session['email'] }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('items.profile') }}" class="dropdown-item">✏️ Edit Profile</a>
+        <div class="dropdown-item" onclick="toggleTheme()">
+          🌙 <span id="theme-label">Dark Mode</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-wide">
+
+  <div class="page-header-lg">
+    <div class="eyebrow">Admin Panel</div>
+    <h1 class="page-title-lg">Dashboard</h1>
+  </div>
+
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="stat-card">
+      <div class="stat-card-num">{{ stats.total_items }}</div>
+      <div class="stat-card-label">Total Items</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(255,95,109,0.3);">
+      <div class="stat-card-num" class="text-danger">{{ stats.lost }}</div>
+      <div class="stat-card-label">Lost</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(52,211,153,0.3);">
+      <div class="stat-card-num" class="text-success">{{ stats.found }}</div>
+      <div class="stat-card-label">Found</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(251,191,36,0.3);">
+      <div class="stat-card-num" style="color:var(--warning);">{{ stats.claimed }}</div>
+      <div class="stat-card-label">Claimed</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(108,99,255,0.3);">
+      <div class="stat-card-num" class="text-accent">{{ stats.total_users }}</div>
+      <div class="stat-card-label">Users</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(167,139,250,0.3);">
+      <div class="stat-card-num" style="color:var(--accent2);">{{ stats.pending_matches }}</div>
+      <div class="stat-card-label">Pending Matches</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex; gap:8px; margin-bottom:24px;">
+    <button class="admin-tab active" onclick="showTab('items', this)">📦 Items</button>
+    <button class="admin-tab" onclick="showTab('users', this)">👥 Users</button>
+  </div>
+
+  <!-- Items Tab -->
+  <div id="tab-items" class="admin-tab-panel">
+    <div class="admin-table-wrap">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">All Items</div>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Title</th><th>Category</th><th>Status</th><th>Location</th><th>Date</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in recent_items %}
+          <tr>
+            <td>#{{ item.id }}</td>
+            <td>
+              <a href="{{ url_for('items.item_detail', item_id=item.id) }}" style="color:var(--accent2); text-decoration:none;">
+                {{ item.title }}
+              </a>
+            </td>
+            <td>{{ item.category }}</td>
+            <td>
+              <span class="card-badge badge-{{ item.status }}" class="pos-relative top-auto left-auto">
+                {{ item.status|capitalize }}
+              </span>
+            </td>
+            <td>{{ item.location or '—' }}</td>
+            <td>{{ item.date_lost or '—' }}</td>
+            <td>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <form method="POST" action="{{ url_for('admin.update_status', item_id=item.id) }}" style="display:flex; gap:4px;">
+                  <select name="status" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:4px 8px; border-radius:6px; font-size:12px; outline:none;">
+                    <option value="lost"    {% if item.status == 'lost'    %}selected{% endif %}>Lost</option>
+                    <option value="found"   {% if item.status == 'found'   %}selected{% endif %}>Found</option>
+                    <option value="claimed" {% if item.status == 'claimed' %}selected{% endif %}>Claimed</option>
+                  </select>
+                  <button type="submit" style="padding:4px 10px; background:var(--accent); color:#fff; border:none; border-radius:6px; font-size:12px; cursor:pointer;">Update</button>
+                </form>
+                <a href="{{ url_for('admin.edit_item', item_id=item.id) }}" style="padding:4px 10px; background:rgba(108,99,255,0.15); color:var(--accent); border:1px solid rgba(108,99,255,0.3); border-radius:6px; font-size:12px; text-decoration:none;">✏️ Edit</a>
+                <form method="POST" action="{{ url_for('admin.delete_item', item_id=item.id) }}" onsubmit="return confirm('Delete this item?')">
+                  <button type="submit" class="btn-reject">🗑 Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Users Tab -->
+  <div id="tab-users" class="admin-tab-panel" style="display:none;">
+    <div class="admin-table-wrap">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">All Users</div>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Admin</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>#{{ user.id }}</td>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role|capitalize }}</td>
+            <td>{{ '✅' if user.is_admin else '—' }}</td>
+            <td>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                {% if not user.is_admin %}
+                <form method="POST" action="{{ url_for('admin.promote_user', user_id=user.id) }}">
+                  <button type="submit" style="padding:4px 10px; background:rgba(108,99,255,0.15); color:var(--accent); border:1px solid rgba(108,99,255,0.3); border-radius:6px; font-size:12px; cursor:pointer;">⬆️ Promote</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" onsubmit="return confirm('Delete this user?')">
+                  <button type="submit" class="btn-reject">🗑 Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function showTab(tab, btn) {
+    document.querySelectorAll('.admin-tab-panel').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).style.display = 'block';
+    btn.classList.add('active');
+  }
+</script>
+{% endblock %}

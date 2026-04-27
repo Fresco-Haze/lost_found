@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }}{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('items.index') }}" class="nav-btn nav-btn-ghost">← Browse</a>
+    <div class="profile-wrap">
+      <button class="avatar" onclick="toggleDropdown()">{{ session['name'][0] }}</button>
+      <div class="profile-dropdown" id="profile-dropdown">
+        <div class="profile-info">
+          <div class="profile-avatar-lg">{{ session['name'][0] }}</div>
+          <div>
+            <div class="profile-name">{{ session['name'] }}</div>
+            <div class="profile-email">{{ session['email'] }}</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('items.profile') }}" class="dropdown-item">✏️ Edit Profile</a>
+        <div class="dropdown-item" onclick="toggleTheme()">
+          🌙 <span id="theme-label">Dark Mode</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main style="max-width:1000px; margin:40px auto; padding:0 40px;">
+
+  <div class="detail-layout">
+
+    <!-- Image -->
+    <div class="detail-img">
+      {% if item.image %}
+        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.title }}" />
+      {% else %}
+        <div class="detail-img-placeholder">
+          {% if item.category == 'Electronics' %}💻
+          {% elif item.category == 'Bags' %}🎒
+          {% elif item.category == 'ID & Cards' %}🪪
+          {% elif item.category == 'Keys' %}🔑
+          {% elif item.category == 'Clothing' %}🧥
+          {% elif item.category == 'Books' %}📒
+          {% else %}📦
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="card-badge badge-{{ item.status }}" style="position:relative; top:auto; left:auto; display:inline-block; margin-top:16px;">
+        {{ item.status|capitalize }}
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="detail-body">
+      <div class="detail-category">{{ item.category }}</div>
+      <h1 class="detail-title">{{ item.title }}</h1>
+
+      <div class="detail-meta">
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">📍 Location</span>
+          <span class="detail-meta-value">{{ item.location or 'Not specified' }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">📅 Date</span>
+          <span class="detail-meta-value">{{ item.date_lost or 'Not specified' }}</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-label">👤 Reported by</span>
+          <span class="detail-meta-value">Anonymous</span>
+        </div>
+      </div>
+
+      <div class="detail-desc-label">Description</div>
+      <div class="detail-desc">{{ item.description or 'No description provided.' }}</div>
+
+      {% if item.status != 'claimed' %}
+        {% if item.user_id != session['user_id'] %}
+          <form method="POST" action="{{ url_for('items.claim_item', item_id=item.id) }}">
+            <button type="submit" class="btn-primary" style="margin-top:24px;">
+              ✋ This is mine — Claim Item
+            </button>
+          </form>
+        {% else %}
+          <div style="margin-top:24px; font-size:13px; color:var(--muted);">
+            You reported this item.
+          </div>
+        {% endif %}
+      {% else %}
+        <div style="margin-top:24px; padding:12px 16px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); border-radius:10px; font-size:13px; color:var(--warning);">
+          ✓ This item has been claimed.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</main>
+
+{% endblock %}

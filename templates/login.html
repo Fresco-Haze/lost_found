@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="layout">
+    <div class="panel-left">
+      <div class="brand">
+        <div class="brand-icon">🔍</div>
+        <div class="brand-name">Campus<span>Find</span></div>
+      </div>
+      <div class="hero-tag">University Lost &amp; Found</div>
+      <h1 class="hero-title">
+        Lost something?<br>
+        <span class="line2">We've got it.</span>
+      </h1>
+      <p class="hero-desc">
+        A smarter way to recover lost items on campus. Report, search, and get notified the moment your item is found.
+      </p>
+      <div class="stats">
+        <div>
+          <div class="stat-num">94%</div>
+          <div class="stat-label">Recovery rate</div>
+        </div>
+        <div>
+          <div class="stat-num">2.4k</div>
+          <div class="stat-label">Items reunited</div>
+        </div>
+        <div>
+          <div class="stat-num">&lt;48h</div>
+          <div class="stat-label">Avg. return time</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-right">
+      <div class="tab-row">
+        <a href="{{ url_for('auth.login') }}"    class="tab active">Sign In</a>
+        <a href="{{ url_for('auth.register') }}" class="tab">Register</a>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="form-title">Welcome back</div>
+        <div class="form-sub">Sign in with your student email.</div>
+        <div class="field">
+          <label>School Email</label>
+          <input type="email" name="email" placeholder="you@students.ku.ac.ke" required />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="••••••••" required />
+        </div>
+        <div class="forgot"><a href="#">Forgot password?</a></div>
+        <button class="btn-primary" type="submit">Sign In</button>
+        <div class="divider">or</div>
+        <div class="email-note">Only <span>@students.ku.ac.ke</span> email addresses are allowed.</div>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

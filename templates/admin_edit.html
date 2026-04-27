@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Edit Item{% endblock %}
+
+{% block content %}
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<nav>
+  <a class="brand" href="{{ url_for('items.index') }}">
+    <div class="brand-icon">🔍</div>
+    <div class="brand-name">Campus<span>Find</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="{{ url_for('admin.dashboard') }}" class="nav-btn nav-btn-ghost">← Admin</a>
+  </div>
+</nav>
+
+<main style="max-width:600px; margin:40px auto; padding:0 40px;">
+  <div class="page-header">
+    <div class="eyebrow">Admin</div>
+    <h1 class="page-title">Edit Item</h1>
+  </div>
+
+  <div class="report-right">
+    <form method="POST">
+      <div class="field">
+        <label>Title</label>
+        <input type="text" name="title" value="{{ item.title }}" required />
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Category</label>
+          <select name="category">
+            {% for cat in ['Electronics','Clothing','ID & Cards','Books','Bags','Keys','Accessories','Other'] %}
+            <option value="{{ cat }}" {% if item.category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" name="date_lost" value="{{ item.date_lost or '' }}" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input type="text" name="location" value="{{ item.location or '' }}" />
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea name="description" rows="4">{{ item.description or '' }}</textarea>
+      </div>
+      <button type="submit" class="btn-primary">Save Changes</button>
+    </form>
+  </div>
+</main>
+
+{% endblock %}

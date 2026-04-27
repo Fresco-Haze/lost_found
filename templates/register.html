@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="page">
+
+    <!-- Left panel -->
+    <div class="panel-left">
+      <a class="brand" href="{{ url_for('auth.login') }}">
+        <div class="brand-icon">🔍</div>
+        <div class="brand-name">Campus<span>Find</span></div>
+      </a>
+
+      <div class="left-body">
+        <div class="left-tag">Join the community</div>
+        <h1 class="left-title">Your campus.<br><span>Your stuff.</span></h1>
+        <p class="left-desc">
+          Create an account to report lost items, claim found ones, and get notified the moment something turns up.
+        </p>
+
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">📸</div>
+            <div class="feature-text">
+              <strong>Photo uploads</strong>
+              <span>Attach images to make identification faster and easier.</span>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔔</div>
+            <div class="feature-text">
+              <strong>Instant notifications</strong>
+              <span>Get SMS alerts the moment a match is found.</span>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-text">
+              <strong>School-only access</strong>
+              <span>Only verified students and staff can post or claim items.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="left-footer">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in →</a>
+      </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="panel-right">
+      <form method="POST" action="{{ url_for('auth.register') }}">
+
+        <div class="form-header">
+          <div class="form-title">Create your account</div>
+          <div class="form-sub">Already registered? <a href="{{ url_for('auth.login') }}">Sign in here</a></div>
+        </div>
+
+        <!-- Step indicator -->
+        <div class="steps">
+          <div class="step active" id="step-ind-1">
+            <div class="step-num" id="step-num-1">1</div>
+            <span>Your Info</span>
+          </div>
+          <div class="step-line" id="line-1"></div>
+          <div class="step" id="step-ind-2">
+            <div class="step-num" id="step-num-2">2</div>
+            <span>Account</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Personal Info -->
+        <div class="step-panel active" id="panel-1">
+          <div class="row-2">
+            <div class="field">
+              <label>First Name</label>
+              <input type="text" name="first_name" id="first-name" placeholder="First name" />
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input type="text" name="last_name" id="last-name" placeholder="Last name" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>I am a…</label>
+          </div>
+          <div class="role-grid">
+            <label class="role-card selected" id="role-student" onclick="selectRole('student')">
+              <input type="radio" name="role" value="student" checked />
+              <div class="role-icon">🎓</div>
+              <div class="role-info">
+                <strong>Student</strong>
+                <span>Undergraduate or postgrad</span>
+              </div>
+            </label>
+            <label class="role-card" id="role-staff" onclick="selectRole('staff')">
+              <input type="radio" name="role" value="staff" />
+              <div class="role-icon">🏫</div>
+              <div class="role-info">
+                <strong>Staff</strong>
+                <span>Lecturer or admin</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="field">
+            <label>Student / Staff ID <span class="hint">e.g. SCT221-0234/2023</span></label>
+            <input type="text" name="student_id" id="student-id" placeholder="SCT221-0234/2023" />
+            <div class="field-note">Used to verify your identity at pickup.</div>
+          </div>
+
+          <div class="field">
+            <label>Phone Number <span class="hint">For SMS alerts</span></label>
+            <input type="tel" name="phone" id="phone" placeholder="+254 712 345 678" />
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" onclick="goStep(2)">Continue →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Account Details -->
+        <div class="step-panel" id="panel-2">
+
+          <div class="field">
+            <label>School Email <span class="hint">Must end in @students.ku.ac.ke</span></label>
+            <input type="email" name="email" id="email" placeholder="you@students.ku.ac.ke" oninput="validateEmail(this)" />
+            <div class="field-note" id="email-note">Only verified school emails are accepted.</div>
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" id="password" placeholder="Min. 8 characters" oninput="checkStrength(this.value)" />
+            <div class="pw-strength">
+              <div class="pw-bars">
+                <div class="pw-bar" id="bar1"></div>
+                <div class="pw-bar" id="bar2"></div>
+                <div class="pw-bar" id="bar3"></div>
+                <div class="pw-bar" id="bar4"></div>
+              </div>
+              <div class="pw-label" id="pw-label">Enter a password</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" id="confirm-password" placeholder="Repeat password" />
+          </div>
+
+          <div class="terms-row">
+            <input type="checkbox" id="terms" />
+            <label for="terms">
+              I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+              Only verified campus members may use this platform.
+            </label>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-ghost" onclick="goStep(1)">← Back</button>
+            <button type="submit" class="btn-primary">Create Account →</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function goStep(n) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + n).classList.add('active');
+
+    for (let i = 1; i <= 2; i++) {
+      const ind = document.getElementById('step-ind-' + i);
+      const num = document.getElementById('step-num-' + i);
+      ind.classList.remove('active', 'done');
+      if (i < n) {
+        ind.classList.add('done');
+        num.textContent = '✓';
+      } else if (i === n) {
+        ind.classList.add('active');
+        num.textContent = i;
+      } else {
+        num.textContent = i;
+      }
+    }
+
+    const line = document.getElementById('line-1');
+    if (line) line.classList.toggle('done', 1 < n);
+  }
+
+  function selectRole(role) {
+    document.getElementById('role-student').classList.toggle('selected', role === 'student');
+    document.getElementById('role-staff').classList.toggle('selected', role === 'staff');
+  }
+
+  function validateEmail(input) {
+    const note = document.getElementById('email-note');
+    if (input.value.includes('@') && !input.value.endsWith('.ac.ke')) {
+      input.classList.add('error'); input.classList.remove('valid');
+      note.textContent = 'Must be a .ac.ke school email address.';
+      note.classList.add('error-note');
+    } else if (input.value.endsWith('.ac.ke')) {
+      input.classList.remove('error'); input.classList.add('valid');
+      note.textContent = '✓ Looks good!';
+      note.classList.remove('error-note');
+      note.style.color = 'var(--success)';
+    } else {
+      input.classList.remove('error', 'valid');
+      note.textContent = 'Only verified school emails are accepted.';
+      note.classList.remove('error-note');
+      note.style.color = '';
+    }
+  }
+
+  function checkStrength(val) {
+    const bars = [
+      document.getElementById('bar1'), document.getElementById('bar2'),
+      document.getElementById('bar3'), document.getElementById('bar4')
+    ];
+    const label = document.getElementById('pw-label');
+    bars.forEach(b => { b.className = 'pw-bar'; });
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const classes = ['weak','fair','fair','strong'];
+    const labels  = ['Too short','Weak','Fair','Strong','Very strong'];
+    for (let i = 0; i < score; i++) bars[i].classList.add(classes[i]);
+    label.textContent = val.length === 0 ? 'Enter a password' : labels[score];
+  }
+</script>
+{% endblock %}
